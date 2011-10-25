@@ -17,4 +17,9 @@
 # limitations under the License.
 #
 
-include_recipe "chef-client::service"
+if node['chef_client']['init_style'] == "none"
+	include_recipe "chef-client::cron"
+else
+	include_recipe "chef-client::service"
+end
+

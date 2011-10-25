@@ -148,40 +148,6 @@ when "bluepill"
     action [:enable,:load,:start]
   end
 
-when "cron"
-  dist_dir, conf_dir = value_for_platform(
-    ["ubuntu", "debian"] => { "default" => ["debian", "default"] },
-    ["redhat", "centos", "fedora", "scientific", "amazon"] => { "default" => ["redhat", "sysconfig"]}
-  )
-
-  # let's create the service file so the :disable action doesn't fail
-  template "/etc/init.d/chef-client" do
-    source "#{dist_dir}/init.d/chef-client.erb"
-    mode 0755
-    variables(
-      :client_bin => client_bin
-    )
-  end
-
-  template "/etc/#{conf_dir}/chef-client" do
-    source "#{dist_dir}/#{conf_dir}/chef-client.erb"
-    mode 0644
-  end
-
-  service "chef-client" do
-    supports :status => true, :restart => true
-    action [:disable, :stop]
-  end
-
-	cron "chef-client" do
-		minute	node['chef_client']['cron']['minute']	
-		hour		node['chef_client']['cron']['hour']
-		user		"root"
-		shell		"/bin/bash"
-		command "/bin/sleep `/usr/bin/expr $RANDOM \\% 90`; #{client_bin}"
-	end
-
-
 when "daemontools"
 
   include_recipe "daemontools"
